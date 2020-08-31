@@ -161,16 +161,37 @@ class _registerState extends State<register> {
   @override
   TextEditingController cusername = new TextEditingController();
   TextEditingController cpassword = new TextEditingController();
+  TextEditingController cpassword2 = new TextEditingController();
   void addData(){
 
-
-    var url = "http://192.168.0.9/testlogin/adddata.php";
-    http.post(url,body:{
-      "username": cusername.text,
-      "password": cpassword.text,
-      "logintime": (DateTime.now().hour*10000+DateTime.now().minute*100+DateTime.now().second).toString(),
-      "loginstate": "login",
-    });
+    if(cpassword==cpassword2) {
+      var url = "http://192.168.0.9/testlogin/adddata.php";
+      http.post(url, body: {
+        "username": cusername.text,
+        "password": cpassword.text,
+        "logintime": (DateTime
+            .now()
+            .hour * 10000 + DateTime
+            .now()
+            .minute * 100 + DateTime
+            .now()
+            .second).toString(),
+        "loginstate": "login",
+      });
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (BuildContext context) =>
+              Home(username: cusername.text)));
+    } else{
+      Fluttertoast.showToast(
+          msg: "Password yang dikonfirmasi tidak sama",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+    }
   }
 
   @override
@@ -189,13 +210,16 @@ class _registerState extends State<register> {
             controller: cpassword,
             decoration: InputDecoration(hintText: "Enter Password", labelText: "Enter Password"),
           ),
+          TextField(
+            controller: cpassword2,
+            decoration: InputDecoration(hintText: "Konfirmasi Password", labelText: "Konfirmasi Password"),
+          ),
           MaterialButton(
             child: Text("Register"),
             color: Colors.redAccent,
             onPressed: (){
               addData();
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (BuildContext context)=>Home(username: cusername.text)));
+
             },
           )
         ],
@@ -203,6 +227,7 @@ class _registerState extends State<register> {
     );
   }
 }
+
 
 
 login.dart
