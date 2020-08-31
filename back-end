@@ -1,1 +1,63 @@
+conn.php:
+<?php
 
+$conn = new mysqli("localhost","root","","testlogin");
+if($conn)
+{
+	//echo "Success";
+}
+else
+{
+	//echo "fail";
+}
+
+?>
+
+adddata.php
+<?php
+
+include 'conn.php';
+
+$username = $_POST['username'];
+$password=$_POST['password'];
+$logintime=$_POST['logintime'];
+$loginstate=$_POST['loginstate'];
+
+
+$conn->query("Insert into login values('".$username."','".$password."','".$logintime."','".$loginstate."')")
+
+?>
+
+editdata.php
+<?php
+
+include 'conn.php';
+
+$username = $_POST['username'];
+$login_time = $_POST['login_time'];
+$login_state = $_POST['login_state'];
+
+
+$conn->query("update mytable set login_time = '".$login_time."',login_state='".$login_state."' where username='".$username."'")
+
+
+?>
+
+getdata.php
+<?php
+
+include 'conn.php';
+
+$sql = $conn->query("select * from login");
+
+$res = array();
+
+while($row = $sql->fetch_assoc())
+{
+	$res[] = $row;
+	
+}
+
+echo json_encode($res)
+
+?>
