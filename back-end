@@ -2,15 +2,6 @@ conn.php:
 <?php
 
 $conn = new mysqli("localhost","root","","testlogin");
-if($conn)
-{
-	//echo "Success";
-}
-else
-{
-	//echo "fail";
-}
-
 ?>
 
 adddata.php
@@ -19,12 +10,12 @@ adddata.php
 include 'conn.php';
 
 $username = $_POST['username'];
-$password=$_POST['password'];
-$logintime=$_POST['logintime'];
-$loginstate=$_POST['loginstate'];
+$password = $_POST['password'];
+$logintime = $_POST['logintime'];
+$loginstate = $_POST['loginstate'];
 
 
-$conn->query("Insert into login values('".$username."','".$password."','".$logintime."','".$loginstate."')")
+$conn->query("Insert into login(username,password,logintime,loginstate) values('".$username."','".$password."','".$logintime."','".$loginstate."')")
 
 ?>
 
@@ -34,11 +25,11 @@ editdata.php
 include 'conn.php';
 
 $username = $_POST['username'];
-$login_time = $_POST['login_time'];
-$login_state = $_POST['login_state'];
+$logintime = $_POST['logintime'];
+$loginstate = $_POST['loginstate'];
 
 
-$conn->query("update mytable set login_time = '".$login_time."',login_state='".$login_state."' where username='".$username."'")
+$conn->query("update login set logintime = '".$logintime."',loginstate='".$loginstate."' where username='".$username."'")
 
 
 ?>
