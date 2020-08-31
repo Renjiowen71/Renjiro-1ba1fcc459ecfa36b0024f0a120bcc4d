@@ -4,8 +4,10 @@ import 'dart:async';
 import 'package:http/http.dart'as http;
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:imei_plugin/imei_plugin.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tstlogin/register.dart';
 import 'login.dart';
 
 void main()=>runApp(MaterialApp(
@@ -31,7 +33,7 @@ class _HomeState extends State<Home> {
   String _login='';
   String _message='';
   String usernamee="";
-
+  String imei;
 
 
   @override
@@ -39,6 +41,7 @@ class _HomeState extends State<Home> {
     _timeString = "${DateTime.now().hour} : ${DateTime.now().minute} :${DateTime.now().second}";
     Timer.periodic(Duration(seconds:1), (Timer t)=>_getCurrentTime());
     super.initState();
+
     _incrementStartup();
   }
   void _getCurrentTime()  {
@@ -56,6 +59,9 @@ class _HomeState extends State<Home> {
       usernamee = widget.username;
     }
     prefs.setString("username", usernamee);
+    imei = await ImeiPlugin.getImei();
+    if(imei=="")
+      imei="0";
   }
   Future<String> _getIntFromSharedPref() async{
     final prefs = await SharedPreferences.getInstance();
@@ -83,7 +89,7 @@ class _HomeState extends State<Home> {
           fontSize: 16.0
       );
       Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context)=>login()));
+          MaterialPageRoute(builder: (BuildContext context)=>login(imei: imei)));
     }else if(usernamee!=""){
       final response = await http.get("http://192.168.0.9/testlogin/getdata.php");
       List list = json.decode(response.body);
@@ -92,21 +98,34 @@ class _HomeState extends State<Home> {
         if(usernamee==list[i]["username"])
           index = i;
       }
+      if(imei==list[index]["loginstate"]){
 
+        String asd =  list[index]["logintime"];
 
-      String asd =  list[index]["logintime"];
-
-      _login = asd.substring(0,2)+":"+asd.substring(2,4)+":"+asd.substring(4,6);
-      _message = "hai "+usernamee+" anda login pada "+_login;
-      Fluttertoast.showToast(
-          msg: _message,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
+        _login = asd.substring(0,2)+":"+asd.substring(2,4)+":"+asd.substring(4,6);
+        _message = "hai "+usernamee+" anda login pada "+_login;
+        Fluttertoast.showToast(
+            msg: _message,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }else{
+        Fluttertoast.showToast(
+            msg: "Alat lain telah login",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (BuildContext context)=>login(imei: imei)));
+      }
     }
 
   }
@@ -142,16 +161,18 @@ class _HomeState extends State<Home> {
   }
 }
 
+
 register.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart'as http;
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import 'main.dart';
+import 'package:tstlogin/login.dart';
 
 class register extends StatefulWidget {
+  final String imei;
+  register({this.imei});
   @override
   _registerState createState() => _registerState();
 }
@@ -176,11 +197,11 @@ class _registerState extends State<register> {
             .minute * 100 + DateTime
             .now()
             .second).toString(),
-        "loginstate": "login",
+        "loginstate": "",
       });
       Navigator.of(context).push(
           MaterialPageRoute(builder: (BuildContext context) =>
-              login()));
+              login(imei: widget.imei)));
     } else{
       Fluttertoast.showToast(
           msg: "Password yang dikonfirmasi tidak sama",
@@ -229,7 +250,6 @@ class _registerState extends State<register> {
 }
 
 
-
 login.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -241,6 +261,9 @@ import 'main.dart';
 import 'register.dart';
 
 class login extends StatefulWidget {
+  String imei;
+
+  login({this.imei});
 
   @override
   _loginState createState() => _loginState();
@@ -265,8 +288,8 @@ class _loginState extends State<login> {
     }
     if(validate){
       updateData();
-      //Navigator.of(context).push(
-        //  MaterialPageRoute(builder: (BuildContext context)=>Home(username: cusername.text)));
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (BuildContext context)=>Home(username: cusername.text)));
     }else{
       Fluttertoast.showToast(
           msg: "Kombinasi username dan login salah",
@@ -286,7 +309,7 @@ class _loginState extends State<login> {
     http.post(url,body:{
       "username": cusername.text,
       "logintime": (DateTime.now().hour*10000+DateTime.now().minute*100+DateTime.now().second).toString(),
-      "loginstate": "login",
+      "loginstate": widget.imei,
     });
     Fluttertoast.showToast(
         msg: "Login Berhasil",
@@ -327,13 +350,14 @@ class _loginState extends State<login> {
             color: Colors.redAccent,
             onPressed: ()=>Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (BuildContext context)=>register())),
+              builder: (BuildContext context)=>register(imei: widget.imei))),
           )
         ],
       ),
     );
   }
 }
+
 
 
 
