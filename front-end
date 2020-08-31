@@ -164,7 +164,7 @@ class _registerState extends State<register> {
   TextEditingController cpassword2 = new TextEditingController();
   void addData(){
 
-    if(cpassword==cpassword2) {
+    if(cpassword.text==cpassword2.text) {
       var url = "http://192.168.0.9/testlogin/adddata.php";
       http.post(url, body: {
         "username": cusername.text,
