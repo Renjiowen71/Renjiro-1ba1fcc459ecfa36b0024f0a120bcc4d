@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
 
 void main()=>runApp(MaterialApp(
-  title: "My App Test",
+  title: "Login",
   debugShowCheckedModeBanner: false,
   theme: ThemeData(
     primarySwatch: Colors.red,
@@ -180,7 +180,7 @@ class _registerState extends State<register> {
       });
       Navigator.of(context).push(
           MaterialPageRoute(builder: (BuildContext context) =>
-              Home(username: cusername.text)));
+              login()));
     } else{
       Fluttertoast.showToast(
           msg: "Password yang dikonfirmasi tidak sama",
